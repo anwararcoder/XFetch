@@ -1,3 +1,9 @@
+/**
+ * XFetch - Universal Fetch Client
+ * Author: Anwar Ramadan
+ * Company: AR-Coder Company
+ */
+
 // ─────────────────────────────────────────────────────────────────────────────
 // XFetch — Type Definitions
 // Central location for all TypeScript interfaces, types, and enums.

@@ -1,3 +1,9 @@
+/**
+ * XFetch - Universal Fetch Client
+ * Author: Anwar Ramadan
+ * Company: AR-Coder Company
+ */
+
 // ─────────────────────────────────────────────────────────────────────────────
 // XFetch — Vue 3 Adapter
 //

@@ -2,15 +2,14 @@
   "name": "xfetch",
   "version": "1.0.0",
   "description": "Universal HTTP fetching library — framework-agnostic, SSR-safe, TypeScript-first, zero runtime dependencies.",
-  "author": "XFetch Contributors",
+  "author": "Anwar Ramadan (AR-Coder Company)",
   "license": "MIT",
-  "homepage": "https://xfetch.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/xfetch.git"
+    "url": "https://github.com/anwararcoder/XFetch.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/xfetch/issues"
+    "url": "https://github.com/anwararcoder/XFetch/issues"
   },
   "keywords": [
     "fetch",
