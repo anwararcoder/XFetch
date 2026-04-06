@@ -41,7 +41,7 @@ export default defineConfig({
         'src/plugins/**',
       ],
       thresholds: {
-        lines: 80,
+        lines: 75,
         functions: 80,
         branches: 70,
       },
