@@ -1,0 +1,110 @@
+{
+  "name": "xfetch",
+  "version": "1.0.0",
+  "description": "Universal HTTP fetching library — framework-agnostic, SSR-safe, TypeScript-first, zero runtime dependencies.",
+  "author": "XFetch Contributors",
+  "license": "MIT",
+  "homepage": "https://xfetch.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/xfetch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/xfetch/issues"
+  },
+  "keywords": [
+    "fetch",
+    "http",
+    "http-client",
+    "ajax",
+    "typescript",
+    "ssr",
+    "react",
+    "vue",
+    "nuxt",
+    "nextjs",
+    "interceptors",
+    "cache",
+    "retry",
+    "universal",
+    "isomorphic",
+    "zero-dependencies"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/xfetch.umd.js",
+  "jsdelivr": "./dist/xfetch.umd.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/adapters/react.d.ts",
+      "import": "./dist/adapters/react.mjs",
+      "require": "./dist/adapters/react.cjs"
+    },
+    "./vue": {
+      "types": "./dist/adapters/vue.d.ts",
+      "import": "./dist/adapters/vue.mjs",
+      "require": "./dist/adapters/vue.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsup --watch",
+    "clean": "rimraf dist",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "release": "npm run typecheck && npm run lint && npm test && npm run build",
+    "prepublishOnly": "npm run release"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^18.3.3",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "@vitest/coverage-v8": "^4.1.2",
+    "eslint": "^10.2.0",
+    "globals": "^17.4.0",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.58.0",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.2",
+    "vue": "^3.4.27"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "vue": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false
+}

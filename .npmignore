@@ -1,0 +1,10 @@
+# Ignore everything by default, then whitelist what npm should publish
+*
+
+# ── Whitelist ──────────────────────────────────────────────────
+!dist/
+!dist/**
+!README.md
+!LICENSE
+!package.json
+!CHANGELOG.md

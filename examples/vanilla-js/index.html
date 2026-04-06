@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XFetch — Vanilla JS & jQuery Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    pre  { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow: auto; }
+    button { padding: .5rem 1.2rem; margin: .25rem; border-radius: 6px; cursor: pointer; border: 1px solid #ccc; }
+    #output { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+<h1>XFetch — UMD / CDN Demo</h1>
+<p>This page uses XFetch from a CDN-style <code>&lt;script&gt;</code> tag. No bundler, no imports.</p>
+
+<button id="btn-vanilla">Vanilla JS Fetch</button>
+<button id="btn-post">POST (Vanilla)</button>
+<button id="btn-jquery">jQuery Integration</button>
+<button id="btn-retry">Retry Demo (bad URL)</button>
+<button id="btn-cancel">Cancel Demo</button>
+<button id="btn-cache">Cache Demo (hit twice)</button>
+
+<h3>Output:</h3>
+<pre id="output">Click a button to fire a request…</pre>
+
+<!--
+  In production, load from your CDN:
+  <script src="https://cdn.example.com/xfetch.umd.js"></script>
+
+  For this demo we load the local build:
+-->
+<script src="../../dist/xfetch.umd.js"></script>
+
+<!-- jQuery (optional — only needed for the jQuery demo) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+  // ─── Create a client ──────────────────────────────────────────────────────
+  // XFetch is exposed as a global `XFetch` object via UMD build.
+
+  const api = XFetch.createClient({
+    baseURL: 'https://jsonplaceholder.typicode.com',
+    timeout: 10_000,
+    retry: { count: 2, delay: 300 },
+    debug: true,
+  });
+
+  // Optional: install the logger plugin
+  api.use(XFetch.loggerPlugin);
+
+  // Optional: add an interceptor
+  api.interceptors.response.use((res) => {
+    console.log('[interceptor] Got response:', res.status);
+    return res;
+  });
+
+  const output = document.getElementById('output');
+  const log = (msg) => {
+    output.textContent = typeof msg === 'object'
+      ? JSON.stringify(msg, null, 2)
+      : String(msg);
+  };
+
+  // ─── Vanilla JS GET ───────────────────────────────────────────────────────
+  document.getElementById('btn-vanilla').addEventListener('click', async () => {
+    log('Loading…');
+    try {
+      const { data } = await api.get('/users/1');
+      log(data);
+    } catch (err) {
+      log('Error: ' + err.message);
+    }
+  });
+
+  // ─── Vanilla JS POST ──────────────────────────────────────────────────────
+  document.getElementById('btn-post').addEventListener('click', async () => {
+    log('Posting…');
+    try {
+      const { data, status } = await api.post('/posts', {
+        title: 'Hello XFetch',
+        body: 'This was posted via XFetch!',
+        userId: 1,
+      });
+      log({ status, data });
+    } catch (err) {
+      log('Error: ' + err.message);
+    }
+  });
+
+  // ─── jQuery Integration ───────────────────────────────────────────────────
+  // XFetch works inside any jQuery event handler — just use it normally.
+  document.getElementById('btn-jquery').addEventListener('click', function () {
+    log('Loading with jQuery button handler…');
+    api.get('/todos/1').then(({ data }) => log(data)).catch((err) => log(err.message));
+  });
+
+  // Alternatively — using $.on():
+  // $('#btn-jquery').on('click', async function() {
+  //   const { data } = await api.get('/users');
+  //   log(data);
+  // });
+
+  // ─── Cancel Demo ──────────────────────────────────────────────────────────
+  let cancelController = null;
+  document.getElementById('btn-cancel').addEventListener('click', async () => {
+    if (cancelController) {
+      cancelController.abort();
+      log('Request cancelled!');
+      cancelController = null;
+      return;
+    }
+
+    cancelController = new AbortController();
+    log('Request started — click again to cancel…');
+
+    try {
+      const { data } = await api.get('/posts', { signal: cancelController.signal });
+      log(data);
+    } catch (err) {
+      if (err.isAborted) {
+        log('✓ Request was cancelled successfully.');
+      } else {
+        log('Error: ' + err.message);
+      }
+    } finally {
+      cancelController = null;
+    }
+  });
+
+  // ─── Retry Demo ───────────────────────────────────────────────────────────
+  document.getElementById('btn-retry').addEventListener('click', async () => {
+    log('Sending to a bad URL (will retry 2 times with backoff)…');
+    try {
+      await XFetch.createClient({ baseURL: 'https://does-not-exist.xfetch.dev' }).get('/test', {
+        retry: { count: 2, delay: 200 },
+        timeout: 5000,
+      });
+    } catch (err) {
+      log(`✓ Retries exhausted. Final error: ${err.message}\n  isNetworkError: ${err.isNetworkError}`);
+    }
+  });
+
+  // ─── Cache Demo ───────────────────────────────────────────────────────────
+  document.getElementById('btn-cache').addEventListener('click', async () => {
+    log('First request (network)…');
+    const start = Date.now();
+    const cachedApi = XFetch.createClient({ baseURL: 'https://jsonplaceholder.typicode.com' });
+
+    const r1 = await cachedApi.get('/users/1', { cache: { storage: 'memory', ttl: 60_000 } });
+    log(`First:  ${Date.now() - start}ms | fromCache: ${r1.fromCache}`);
+
+    const r2 = await cachedApi.get('/users/1', { cache: { storage: 'memory', ttl: 60_000 } });
+    log(`Second: ${Date.now() - start}ms | fromCache: ${r2.fromCache}\n\n` + JSON.stringify(r2.data, null, 2));
+  });
+</script>
+</body>
+</html>
