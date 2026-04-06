@@ -56,7 +56,7 @@ export {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Default export — a convenience pre-configured client using defaults.
-// Useful for quick scripts: import api from 'xfetch'; api.get('/endpoint');
+// Useful for quick scripts: import api from '@ar-coder/xfetch'; api.get('/endpoint');
 // ─────────────────────────────────────────────────────────────────────────────
 import { createClient } from './core/client.js';
 

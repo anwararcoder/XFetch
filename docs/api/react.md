@@ -7,8 +7,8 @@ XFetch provides native React hooks (`useRequest` and `useMutation`) imported fro
 Fetches data and manages loading/error states. Suitable for data read operations. Re-executes intelligently if the dependency array or URL changes.
 
 ```tsx
-import { createClient } from 'xfetch';
-import { useRequest } from 'xfetch/react';
+import { createClient } from '@ar-coder/xfetch';
+import { useRequest } from '@ar-coder/xfetch/react';
 
 const api = createClient({ baseURL: '/api' });
 

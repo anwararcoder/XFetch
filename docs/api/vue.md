@@ -9,8 +9,8 @@ Fetches data reactively and updates Vue `ref()` instances.
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { createClient } from 'xfetch';
-import { useApi } from 'xfetch/vue';
+import { createClient } from '@ar-coder/xfetch';
+import { useApi } from '@ar-coder/xfetch/vue';
 
 const api = createClient({ baseURL: '/api' });
 const { data, loading, error, execute } = useApi<User[]>(api, '/users');
@@ -34,7 +34,7 @@ Handles declarative writes without fetching on mount.
 
 ```vue
 <script setup lang="ts">
-import { useApiMutation } from 'xfetch/vue';
+import { useApiMutation } from '@ar-coder/xfetch/vue';
 
 const { mutate, loading } = useApiMutation<Item, { text: string }>(api, 'post', '/items');
 </script>

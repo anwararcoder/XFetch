@@ -63,7 +63,7 @@ export interface UseApiReturn<T> {
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useApi } from 'xfetch/vue';
+ * import { useApi } from '@ar-coder/xfetch/vue';
  *
  * const { data, loading, error } = useApi<User[]>(api, '/users');
  * </script>

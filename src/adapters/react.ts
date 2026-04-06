@@ -30,7 +30,7 @@ import {
 import type { XFetchClient, RequestOptions, XFetchResponse } from '../utils/types.js';
 import { XFetchError } from '../utils/types.js';
 
-// Re-export for consumers that import everything from 'xfetch/react'
+// Re-export for consumers that import everything from '@ar-coder/xfetch/react'
 export type { XFetchClient, RequestOptions, XFetchResponse };
 export { XFetchError };
 

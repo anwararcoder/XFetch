@@ -20,7 +20,7 @@ const api = createClient({
 The plugin system allows injecting reusable behavior directly into the request cycle by interacting with interceptors behind the scenes.
 
 ```typescript
-import { createLoggerPlugin } from 'xfetch';
+import { createLoggerPlugin } from '@ar-coder/xfetch';
 
 api.use(createLoggerPlugin({ logBody: true }));
 ```

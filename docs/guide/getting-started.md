@@ -7,13 +7,13 @@ XFetch is a highly extensible, framework-agnostic HTTP fetching client modeled a
 ## Installation
 
 ```bash
-npm install xfetch
+npm install @ar-coder/xfetch
 ```
 
 ## Creating a Client
 
 ```typescript
-import { createClient } from 'xfetch';
+import { createClient } from '@ar-coder/xfetch';
 
 const api = createClient({
   baseURL: 'https://api.example.com',

@@ -49,17 +49,17 @@ _Created and maintained by Anwar Ramadan (AR-Coder Company)_
 ## 📦 Installation
 
 ```bash
-npm install xfetch
+npm install @ar-coder/xfetch
 # or
-pnpm add xfetch
+pnpm add @ar-coder/xfetch
 # or
-yarn add xfetch
+yarn add @ar-coder/xfetch
 ```
 
 **Using via CDN (UMD browser build):**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xfetch/dist/xfetch.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ar-coder/xfetch/dist/xfetch.umd.js"></script>
 ```
 
 ---
@@ -69,7 +69,7 @@ yarn add xfetch
 Creating an instance allows you to encapsulate base URLs, default headers, and global configurations such as cache and retry strategies.
 
 ```ts
-import { createClient } from "xfetch";
+import { createClient } from "@ar-coder/xfetch";
 
 const api = createClient({
   baseURL: "https://api.example.com",
@@ -99,8 +99,8 @@ await api.delete("/users/1");
 XFetch exposes custom hooks directly from `xfetch/react`. These hooks are strictly typed and handle loading/error states out of the box.
 
 ```tsx
-import { createClient } from "xfetch";
-import { useRequest, useMutation } from "xfetch/react";
+import { createClient } from "@ar-coder/xfetch";
+import { useRequest, useMutation } from "@ar-coder/xfetch/react";
 
 const api = createClient({ baseURL: "https://api.example.com" });
 
@@ -142,8 +142,8 @@ XFetch exposes composables from `xfetch/vue`. They automatically integrate with 
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-import { createClient } from "xfetch";
-import { useApi, useApiMutation } from "xfetch/vue";
+import { createClient } from "@ar-coder/xfetch";
+import { useApi, useApiMutation } from "@ar-coder/xfetch/vue";
 
 const api = createClient({ baseURL: "/api" });
 
@@ -173,7 +173,7 @@ XFetch distinguishes itself by seamlessly executing on the server without memory
 **Next.js (App Router / Server Components):**
 
 ```tsx
-import { createClient } from "xfetch";
+import { createClient } from "@ar-coder/xfetch";
 const api = createClient({ baseURL: "https://api.example.com" });
 
 export default async function Page() {
@@ -199,7 +199,7 @@ const { data } = await useAsyncData("users", () =>
 XFetch is exported over `XFetch` global object when imported through a `<script>` tag. It works flawlessly in older environments like jQuery projects!
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xfetch/dist/xfetch.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ar-coder/xfetch/dist/xfetch.umd.js"></script>
 <script>
   const api = XFetch.createClient({ baseURL: "https://api.example.com" });
 

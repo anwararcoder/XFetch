@@ -11,7 +11,7 @@
 // Automatically installs request and response interceptors.
 //
 // Usage:
-//   import { loggerPlugin } from 'xfetch';
+//   import { loggerPlugin } from '@ar-coder/xfetch';
 //   const api = createClient({ baseURL: '/api' }).use(loggerPlugin);
 //
 // Only recommended in development. In production, use `debug: false` in config.
@@ -33,7 +33,7 @@ export interface LoggerPluginOptions {
  *
  * @example
  * ```ts
- * import { createClient, createLoggerPlugin } from 'xfetch';
+ * import { createClient, createLoggerPlugin } from '@ar-coder/xfetch';
  *
  * const api = createClient({ baseURL: '/api' })
  *   .use(createLoggerPlugin({ logHeaders: true, logBody: true }));
