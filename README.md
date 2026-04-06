@@ -2,15 +2,28 @@
 
 **Universal HTTP fetching library** — framework-agnostic, SSR-safe, TypeScript-first, zero runtime dependencies.
 
-*Created and maintained by Anwar Ramadan (AR-Coder Company)*
+_Created and maintained by Anwar Ramadan (AR-Coder Company)_
 
 <p align="left">
-  <a href="https://npmjs.com/package/xfetch"><img src="https://img.shields.io/npm/v/xfetch.svg?color=blue&style=flat-square" alt="npm version"></a>
-  <a href="https://npmjs.com/package/xfetch"><img src="https://img.shields.io/npm/dt/xfetch.svg?color=green&style=flat-square" alt="downloads"></a>
-  <a href="https://bundlephobia.com/package/xfetch"><img src="https://img.shields.io/bundlephobia/minzip/xfetch?color=purple&style=flat-square" alt="Bundle size"></a>
-  <a href="https://github.com/anwararcoder/XFetch/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/your-org/xfetch/ci.yml?branch=main&style=flat-square" alt="Build Status"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-ready-blue.svg?style=flat-square" alt="TypeScript"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License: MIT"></a>
+  <a href="https://www.npmjs.com/package/@ar-coder/xfetch">
+    <img src="https://img.shields.io/npm/v/@ar-coder/xfetch.svg?color=blue&style=flat-square" alt="npm version">
+  </a>
+
+  <a href="https://www.npmjs.com/package/@ar-coder/xfetch">
+    <img src="https://img.shields.io/npm/dt/@ar-coder/xfetch.svg?color=green&style=flat-square" alt="downloads">
+  </a>
+
+  <a href="https://github.com/anwararcoder/XFetch/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/anwararcoder/XFetch/ci.yml?branch=main&style=flat-square" alt="Build Status">
+  </a>
+  
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-ready-blue.svg?style=flat-square" alt="TypeScript">
+  </a>
+  
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License: MIT">
+  </a>
 </p>
 
 > Built entirely on native `fetch`. Inspired by Axios but designed for the modern web. From a classic `<script>` tag or jQuery application to a Next.js Server Components setup.
@@ -321,8 +334,8 @@ We welcome community contributions constraints via Pull Requests. Please see our
 
 **Anwar Ramadan** is a Senior Software Engineer passionate about open-source and modern web architectures. This project is maintained under the umbrella of **AR-Coder Company**, dedicated to building precise, production-grade developer tooling.
 
-* **GitHub:** [@anwararcoder](https://github.com/anwararcoder)
-* **Company:** AR-Coder Company
+- **GitHub:** [@anwararcoder](https://github.com/anwararcoder)
+- **Company:** AR-Coder Company
 
 ---
 

@@ -1,6 +1,6 @@
 {
-  "name": "xfetch",
-  "version": "1.0.0",
+  "name": "@ar-coder/xfetch",
+  "version": "1.0.1",
   "description": "Universal HTTP fetching library — framework-agnostic, SSR-safe, TypeScript-first, zero runtime dependencies.",
   "author": "Anwar Ramadan (AR-Coder Company)",
   "license": "MIT",
