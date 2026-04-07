@@ -40,6 +40,9 @@ export { withRetry, shouldRetry, calculateDelay, RETRY_DEFAULTS } from './featur
 // ── Auth manager ─────────────────────────────────────────────────────────────
 export { AuthManager } from './features/auth.js';
 
+// ── Rate limiter ─────────────────────────────────────────────────────────────
+export { RateLimiter, type RateLimiterOptions } from './features/rate-limit.js';
+
 // ── Plugins ──────────────────────────────────────────────────────────────────
 export { loggerPlugin, createLoggerPlugin } from './plugins/logger.js';
 
@@ -52,6 +55,8 @@ export {
   isServer,
   isBrowser,
   isDev,
+  validateURL,
+  scrubURL,
 } from './utils/helpers.js';
 
 // ─────────────────────────────────────────────────────────────────────────────

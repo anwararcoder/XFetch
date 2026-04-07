@@ -28,6 +28,7 @@ import {
   parseResponseBody,
   createTimeoutSignal,
   combineSignals,
+  validateURL,
 } from '../utils/helpers.js';
 
 // ─── Internal request params (fully resolved, no optionals) ──────────────────
@@ -58,6 +59,9 @@ export async function executeRequest<T = unknown>(
   // ── 1. Build final URL ────────────────────────────────────────────────────
   const rawURL = buildURL(baseURL, resolved.url);
   const finalURL = appendParams(rawURL, options.params);
+  // Security: final defense-in-depth URL validation before network call
+  // (catches any URL assembled dynamically that slipped past buildURL checks)
+  validateURL(finalURL);
 
   // ── 2. Merge headers (global → per-request) ───────────────────────────────
   const { serialized: body, extraHeaders: bodyHeaders } = prepareBody(options.body);

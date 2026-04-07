@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XFetch Documentation</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <!-- Prism.js Syntax Highlighting CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-40 w-full border-b backdrop-blur supports-backdrop-blur:bg-background/60 bg-background/95">
+        <div class="container-max flex h-14 items-center">
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="mr-2 px-0 md:hidden flex items-center justify-center p-2 text-muted-foreground hover:bg-muted rounded-md shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" x2="20" y1="12" y2="12" />
+                    <line x1="4" x2="20" y1="6" y2="6" />
+                    <line x1="4" x2="20" y1="18" y2="18" />
+                </svg>
+            </button>
+
+            <!-- Logo -->
+            <div class="mr-4 sm:flex hidden shrink-0">
+                <a href="#" class="flex">
+                    <img src="./logo.png" alt="XFetch Logo" class="h-3 w-auto">
+                </a>
+            </div>
+
+            <!-- Desktop Links -->
+            <nav class="flex items-center space-x-6 text-sm font-medium mr-auto">
+                <a href="#" class="transition-colors hover:text-foreground/80 text-foreground">Docs</a>
+                <a href="https://github.com/anwararcoder/XFetch" target="_blank" class="transition-colors hover:text-foreground/80 text-foreground/60 hidden sm:inline-block">GitHub</a>
+                <a href="https://www.npmjs.com/package/@ar-coder/xfetch" target="_blank" class="transition-colors hover:text-foreground/80 text-foreground/60 hidden sm:inline-block">npm</a>
+            </nav>
+
+            <!-- Right Nav / Theme Toggle -->
+            <div class="flex items-center justify-end flex-shrink-0">
+                <div class="relative hidden sm:block mr-4 w-64">
+                    <svg class="search-icon h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                    <input type="search" id="search-input" class="search-input bg-muted/50" placeholder="Search documentation...">
+                </div>
+
+                <nav class="flex items-center">
+                    <button id="theme-toggle" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors hover:bg-muted hover:text-muted-foreground h-9 w-9">
+                        <svg class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4" />
+                            <path d="M12 2v2" />
+                            <path d="M12 20v2" />
+                            <path d="m4.93 4.93 1.41 1.41" />
+                            <path d="m17.66 17.66 1.41 1.41" />
+                            <path d="M2 12h2" />
+                            <path d="M20 12h2" />
+                            <path d="m6.34 17.66-1.41 1.41" />
+                            <path d="m19.07 4.93-1.41 1.41" />
+                        </svg>
+                        <svg class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                        </svg>
+                        <span class="sr-only">Toggle theme</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm hidden md:hidden"></div>
+
+    <!-- Layout Container -->
+    <div class="container-max flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-14 z-50 -translate-x-full md:translate-x-0 w-full shrink-0 md:sticky md:block border-r bg-background md:bg-transparent h-[calc(100vh-3.5rem)] overflow-y-auto px-4 py-6 md:py-8 lg:py-10 md:px-0 transition-transform duration-300 md:w-full max-w-[280px]">
+
+            <!-- Mobile Search inside sidebar -->
+            <div class="relative block sm:hidden mb-6">
+                <svg class="search-icon h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+                <input type="search" class="search-input bg-muted/50" placeholder="Search...">
+            </div>
+
+            <div class="space-y-4">
+                <div class="pb-4">
+                    <h4 class="mb-1 rounded-md px-2 py-1 text-sm font-semibold">Getting Started</h4>
+                    <div class="grid grid-flow-row auto-rows-max text-sm">
+                        <a href="#intro" class="sidebar-link active">Introduction</a>
+                        <a href="#features" class="sidebar-link">Features</a>
+                        <a href="#installation" class="sidebar-link">Installation</a>
+                    </div>
+                </div>
+                <div class="pb-4">
+                    <h4 class="mb-1 rounded-md px-2 py-1 text-sm font-semibold">Usage</h4>
+                    <div class="grid grid-flow-row auto-rows-max text-sm">
+                        <a href="#usage-basic" class="sidebar-link">Basic Example</a>
+                        <a href="#methods" class="sidebar-link">GET / POST</a>
+                    </div>
+                </div>
+                <div class="pb-4">
+                    <h4 class="mb-1 rounded-md px-2 py-1 text-sm font-semibold">API Reference</h4>
+                    <div class="grid grid-flow-row auto-rows-max text-sm">
+                        <a href="#api-createclient" class="sidebar-link">createClient</a>
+                        <a href="#api-interceptors" class="sidebar-link">Interceptors</a>
+                        <a href="#api-cache" class="sidebar-link">Cache</a>
+                        <a href="#api-retry" class="sidebar-link">Retry</a>
+                        <a href="#api-auth" class="sidebar-link">Authentication</a>
+                    </div>
+                </div>
+                <div class="pb-4">
+                    <h4 class="mb-1 rounded-md px-2 py-1 text-sm font-semibold">Examples</h4>
+                    <div class="grid grid-flow-row auto-rows-max text-sm">
+                        <a href="#ex-react" class="sidebar-link">React</a>
+                        <a href="#ex-vue" class="sidebar-link">Vue</a>
+                        <a href="#ex-next" class="sidebar-link">Next.js</a>
+                        <a href="#ex-nuxt" class="sidebar-link">Nuxt</a>
+                        <a href="#ex-vanilla" class="sidebar-link">Vanilla JS & jQuery</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Grid -->
+        <main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_200px]">
+
+            <!-- Content Area -->
+            <div class="mx-auto w-full min-w-0 prose pb-12">
+
+                <!-- Getting Started -->
+                <section id="intro">
+                    <h1>XFetch Documentation</h1>
+                    <p class="text-lg text-muted-foreground">Universal HTTP fetching library — framework-agnostic, SSR-safe, TypeScript-first, zero runtime dependencies.</p>
+                </section>
+
+                <section id="features">
+                    <h2>Features</h2>
+                    <ul>
+                        <li><strong>Zero dependencies</strong>: Only uses native <code>fetch</code>. Compatible with Node 18+, browsers, Edge Runtime, Bun, and Deno.</li>
+                        <li><strong>Smart Retry</strong>: Built-in exponential backoff with jitter and customizable status codes.</li>
+                        <li><strong>Caching</strong>: Memory and LocalStorage backends, TTL-based eviction.</li>
+                        <li><strong>Interceptors</strong>: Axios-style request, response, and error middleware chains.</li>
+                        <li><strong>Security hardened</strong>: SSRF protection, prototype-pollution defenses, and safe headers handling.</li>
+                        <li><strong>Framework Ready</strong>: Includes adapters for React, Vue, Next.js, and Nuxt.</li>
+                    </ul>
+                </section>
+
+                <section id="installation">
+                    <h2>Installation</h2>
+                    <p>Install the library from npm using your preferred package manager:</p>
+                    <pre><code class="language-bash">npm install @ar-coder/xfetch
+# or
+pnpm add @ar-coder/xfetch
+# or
+yarn add @ar-coder/xfetch</code></pre>
+
+                    <p>For usage without a bundler, you can also load it via CDN:</p>
+                    <pre><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/npm/@ar-coder/xfetch/dist/xfetch.umd.js"&gt;&lt;/script&gt;</code></pre>
+                </section>
+
+                <!-- Usage -->
+                <section id="usage-basic">
+                    <h2>Basic Usage</h2>
+                    <p>Creating an instance encapsulates your base URL, default headers, and global behavior.</p>
+                    <pre><code class="language-typescript">import { createClient } from "@ar-coder/xfetch";
+
+const api = createClient({
+  baseURL: "https://api.example.com",
+  headers: {
+    Accept: "application/json",
+  },
+  timeout: 10000,
+});</code></pre>
+                </section>
+
+                <section id="methods">
+                    <h2>GET & POST Methods</h2>
+                    <p>Standard HTTP methods are exposed directly on the client instance.</p>
+                    <pre><code class="language-typescript">// GET with automatic TypeScript inference
+const { data: users } = await api.get&lt;User[]&gt;("/users");
+
+// POST — objects are automatically serialized to JSON
+await api.post("/users", { name: "Anwar", role: "admin" });
+
+// Seamless REST support
+await api.put("/users/1", { name: "Updated" });
+await api.delete("/users/1");</code></pre>
+                </section>
+
+                <!-- API Reference -->
+                <section id="api-createclient">
+                    <h2>API: createClient</h2>
+                    <p>Accepts a configuration object to setup a new HTTP client instance.</p>
+                    <pre><code class="language-typescript">const api = createClient({
+  baseURL?: string;       // Base URL for all requests
+  headers?: Record&lt;string, string&gt;; // Global headers
+  timeout?: number;       // Default timeout in ms
+  retry?: RetryOptions;   // Global retry rules
+  cache?: CacheOptions;   // Global cache rules
+  auth?: AuthOptions;     // Configuration for Bearer tokens
+  debug?: boolean;        // Enables safe request/response logging
+});</code></pre>
+                </section>
+
+                <section id="api-interceptors">
+                    <h2>API: Interceptors</h2>
+                    <p>Modify requests or responses before they reach your app logic. Similar to Axios.</p>
+                    <pre><code class="language-typescript">// Request Interceptor
+api.interceptors.request.use(async (ctx) => {
+  ctx.headers["Accept-Language"] = "en-US";
+  return ctx;
+});
+
+// Response Interceptor
+api.interceptors.response.use((res) => {
+  console.log('Got response', res.status);
+  return res;
+});
+
+// Error Interceptor
+api.interceptors.error.use((error) => {
+  if (error.status === 403) window.location.href = "/login";
+  return Promise.reject(error);
+});</code></pre>
+                </section>
+
+                <section id="api-cache">
+                    <h2>API: Caching</h2>
+                    <p>Stop waiting on redundant data. Supports memory and cross-tab LocalStorage.</p>
+                    <pre><code class="language-typescript">// Memory cache, lives for 5 minutes
+await api.get("/features", { cache: { storage: 'memory', ttl: 300000 } });
+
+// LocalStorage cache for persistent state
+await api.get("/config", { cache: { storage: 'localStorage' } });
+
+// Explicitly bypass cache
+await api.get("/status", { cache: false });</code></pre>
+                </section>
+
+                <section id="api-retry">
+                    <h2>API: Retry Logic</h2>
+                    <p>Automatically retries idempotent requests (GET, PUT, etc.) using exponential backoff.</p>
+                    <pre><code class="language-typescript">const api = createClient({
+  retry: {
+    count: 3, 
+    delay: 500, // wait 500ms -> 1000ms -> 2000ms
+    statusCodes: [408, 429, 500, 502, 503, 504],
+  }
+});</code></pre>
+                </section>
+
+                <section id="api-auth">
+                    <h2>API: Authentication</h2>
+                    <p>Built-in 401 Unauthorized refresh flow. No custom interceptor required to keep tokens fresh.</p>
+                    <pre><code class="language-typescript">const api = createClient({
+  auth: {
+    token: "initial-token",
+    // Automatically pauses queue and refreshes on 401
+    refreshToken: async () => {
+      const res = await fetch("/api/refresh", { method: 'POST' });
+      const json = await res.json();
+      return json.newToken;
+    }
+  }
+});</code></pre>
+                </section>
+
+                <!-- Examples -->
+                <section id="ex-react">
+                    <h2>Examples: React</h2>
+                    <p>Extract reactive states directly in your React components.</p>
+                    <pre><code class="language-tsx">import { useRequest } from "@ar-coder/xfetch/react";
+
+function UserList() {
+  const { data, loading, error } = useRequest&lt;User[]&gt;(api, "/users");
+
+  if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error!&lt;/div&gt;;
+
+  return &lt;ul&gt;{data?.map(u => &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;)}&lt;/ul&gt;;
+}</code></pre>
+                </section>
+
+                <section id="ex-vue">
+                    <h2>Examples: Vue</h2>
+                    <p>Native integration with Vue's Reactivity system.</p>
+                    <pre><code class="language-vue">&lt;script setup&gt;
+import { useApi } from "@ar-coder/xfetch/vue";
+
+const { data, loading } = useApi(api, "/users");
+&lt;/script&gt;
+&lt;template&gt;
+  &lt;div v-if="loading"&gt;Loading...&lt;/div&gt;
+  &lt;ul v-else&gt;
+    &lt;li v-for="u in data" :key="u.id"&gt;{{ u.name }}&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;</code></pre>
+                </section>
+
+                </section>
+
+                <section id="ex-next">
+                    <h2>Examples: Next.js (App Router)</h2>
+                    <p>Runs perfectly on the server without leaks.</p>
+                    <pre><code class="language-tsx">export default async function Page() {
+  // SSR deduping works out of the box
+  const { data: users } = await api.get&lt;User[]&gt;("/users");
+  return &lt;UserList users={users} /&gt;;
+}</code></pre>
+                </section>
+
+                <section id="ex-vanilla">
+                    <h2>Examples: Vanilla JS & jQuery</h2>
+                    <p>XFetch works seamlessly in the browser via CDN script tags.</p>
+                    <pre><code class="language-html">&lt;!-- Load XFetch from CDN --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@ar-coder/xfetch/dist/xfetch.umd.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // It attaches to the global window object
+  const api = window.XFetch.createClient({ baseURL: 'https://api.example.com' });
+
+  // 1. Vanilla JS Usage
+  document.getElementById('load-btn').addEventListener('click', async () => {
+    try {
+      const res = await api.get('/users');
+      console.log('Vanilla JS Data:', res.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  });
+
+  // 2. jQuery Usage (Combining the power of XFetch with DOM manipulation)
+  $('#jquery-btn').on('click', function() {
+    api.get('/users').then(res => {
+      res.data.forEach(user => {
+        $('#user-list').append(`&lt;li&gt;${user.name}&lt;/li&gt;`);
+      });
+    });
+  });
+&lt;/script&gt;</code></pre>
+                </section>
+
+            </div>
+
+            <!-- Table of Contents (Right Sidebar) -->
+            <div class="hidden text-sm xl:block">
+                <div class="sticky top-14 -mt-10 h-[calc(100vh-3.5rem)] pt-10">
+                    <div class="space-y-2">
+                        <h4 class="font-medium">On This Page</h4>
+                        <ul class="m-0 list-none space-y-1">
+                            <li><a href="#intro" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Introduction</a></li>
+                            <li><a href="#features" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Features</a></li>
+                            <li><a href="#installation" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Installation</a></li>
+                            <li><a href="#usage-basic" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Basic Usage</a></li>
+                            <li><a href="#methods" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">GET & POST</a></li>
+                            <li><a href="#api-createclient" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1 pl-4">createClient</a></li>
+                            <li><a href="#api-interceptors" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1 pl-4">Interceptors</a></li>
+                            <li><a href="#api-cache" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1 pl-4">Cache</a></li>
+                            <li><a href="#api-retry" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1 pl-4">Retry</a></li>
+                            <li><a href="#api-auth" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1 pl-4">Auth</a></li>
+                            <li><a href="#ex-react" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Examples (React)</a></li>
+                            <li><a href="#ex-vue" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Examples (Vue)</a></li>
+                            <li><a href="#ex-next" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Examples (Next.js)</a></li>
+                            <li><a href="#ex-vanilla" class="toc-link block text-muted-foreground hover:text-foreground transition-colors py-1">Examples (Vanilla JS)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t py-6 md:py-0">
+        <div class="container-max flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row text-sm text-muted-foreground">
+            <p class="text-center md:text-left">
+                &copy; 2026
+                <a href="https://github.com/anwararcoder" target="_blank" class="font-medium underline underline-offset-4">Anwar Ramadan</a>
+                - AR-Coder Company. Built for the modern web.
+            </p>
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/anwararcoder/XFetch" target="_blank" class="hover:text-foreground transition-colors">GitHub</a>
+                <a href="https://www.npmjs.com/package/@ar-coder/xfetch" target="_blank" class="hover:text-foreground transition-colors">npm</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="./script.js"></script>
+</body>
+
+</html>

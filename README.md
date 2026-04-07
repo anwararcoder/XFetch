@@ -28,6 +28,9 @@ _Created and maintained by Anwar Ramadan (AR-Coder Company)_
 
 > Built entirely on native `fetch`. Inspired by Axios but designed for the modern web. From a classic `<script>` tag or jQuery application to a Next.js Server Components setup.
 
+### 📚 [Read the Full Documentation](https://anwararcoder.github.io/sites/sites/xfetch-docs/)
+_Explore detailed guides, interactive examples, and full API references on our official docs site._
+
 ---
 
 ## 🌟 Features
@@ -313,7 +316,117 @@ api.clearAuth();
 
 ---
 
-## 🤝 Contributing
+## 🔐 Security Features
+
+XFetch ships with production-grade security hardening out of the box. Every feature is opt-out rather than opt-in — you're safe by default.
+
+### 🚫 SSRF & Protocol Validation
+
+Every URL is validated against a blocklist of dangerous protocols before any network call is made. This prevents Server-Side Request Forgery and local file reads.
+
+```ts
+// These will all throw immediately — no network call is ever made:
+api.get("file:///etc/passwd");          // ❌ Blocked: file:
+api.get("javascript:alert(1)");         // ❌ Blocked: javascript:
+api.get("data:text/html,<script>...");  // ❌ Blocked: data:
+api.get("gopher://internal-service");   // ❌ Blocked: gopher:
+
+// Use validateURL directly in your own code:
+import { validateURL } from "@ar-coder/xfetch";
+validateURL(userProvidedURL); // throws if unsafe
+```
+
+### 🧼 Credential Scrubbing in Dev Logs
+
+When debug mode is active, XFetch automatically redacts sensitive headers and embedded URL credentials from all log output. Your tokens will never appear in the browser console or terminal.
+
+```
+// What you see in the console (dev mode):
+[XFetch] → GET https://***:***@api.example.com/users
+Headers: { authorization: '[REDACTED]', cookie: '[REDACTED]', accept: 'application/json' }
+```
+
+### 🛡️ Prototype Pollution Protection
+
+`mergeHeaders` uses a null-prototype result object and explicitly blocks dangerous keys:
+
+```ts
+// These keys are silently ignored — they cannot pollute Object.prototype:
+mergeHeaders({ "__proto__": "...", "constructor": "..." }); // safe ✓
+```
+
+### 🔒 Auth-Aware Caching
+
+Requests that carry `Authorization`, `Cookie`, or `X-Auth-Token` headers are **never cached** — regardless of your cache configuration. This prevents cross-user data leakage in SSR environments or shared memory on the server.
+
+```ts
+// Even with global cache enabled, authenticated requests always hit the network:
+const api = createClient({
+  baseURL: "https://api.example.com",
+  cache: { storage: "memory", ttl: 60_000 },
+  auth: { token: "my-token" },
+});
+
+// This request will NOT be cached — auth header is present:
+await api.get("/profile");
+```
+
+### 🔁 Idempotent Retry (No Double Charges)
+
+By default, retries only happen for safe, idempotent HTTP methods (`GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`). Non-idempotent methods (`POST`, `PATCH`) are **never retried** without explicit opt-in, preventing duplicate writes or double charges.
+
+```ts
+const api = createClient({
+  retry: {
+    count: 3,
+    statusCodes: [408, 500, 502, 503, 504],
+    // ⚠️ Explicitly opt-in to POST retries (user assumes responsibility):
+    allowedMethods: ["GET", "HEAD", "OPTIONS", "POST"],
+  },
+});
+
+// POST is retried ONLY when allowedMethods includes 'POST'.
+// By default, this throws immediately on the first failure — no retries.
+await api.post("/payment/charge", { amount: 99.99 });
+```
+
+An absolute hard cap of **10 retry attempts** is enforced regardless of configuration.
+
+### ⏱️ Rate Limiting
+
+Protect your backend APIs from accidental request floods using the built-in `RateLimiter`. Ideal for preventing React render-loop or reactive-watcher bugs from hammering your API.
+
+```ts
+import { createClient, RateLimiter } from "@ar-coder/xfetch";
+
+const api = createClient({ baseURL: "https://api.example.com" });
+
+// Allow max 30 requests every 10 seconds
+const limiter = new RateLimiter({ maxRequests: 30, windowMs: 10_000 });
+
+api.interceptors.request.use((ctx) => {
+  limiter.check(); // throws XFetchError { status: 429 } if limit exceeded
+  return ctx;
+});
+
+// Check remaining budget:
+console.log(limiter.remaining); // e.g. 27
+```
+
+### 🧊 Config Immutability
+
+The client configuration object is frozen with `Object.freeze()` after initialization. This prevents any runtime mutation that could silently change security-critical settings like `baseURL` or `auth.token`.
+
+```ts
+const config = { baseURL: "https://api.example.com" };
+const api = createClient(config);
+
+// This silently fails (strict mode throws TypeError):
+config.baseURL = "https://evil.attacker.com"; // ❌ frozen — no effect
+```
+
+---
+
 
 We welcome community contributions constraints via Pull Requests. Please see our `CONTRIBUTING.md` guidelines for information.
 

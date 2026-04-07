@@ -28,21 +28,78 @@ export const isDev = (() => {
   }
 })();
 
+// ─── Security: Unsafe Protocol Blocklist ────────────────────────────────────
+
+/**
+ * Protocols that must never be used in outbound HTTP requests.
+ * Blocking these prevents SSRF, local file reads, and script injection.
+ */
+const UNSAFE_PROTOCOLS = [
+  'javascript:',
+  'data:',
+  'vbscript:',
+  'file:',
+  'blob:',
+  'gopher:',
+  'ftp:',
+];
+
+/**
+ * Validates a URL string against the unsafe protocol blocklist.
+ * Throws immediately if a dangerous scheme is detected.
+ *
+ * @throws {Error} if the URL contains a blocked protocol
+ */
+export function validateURL(url: string): void {
+  if (typeof url !== 'string' || url.trim() === '') {
+    throw new Error('[XFetch] Invalid URL: must be a non-empty string.');
+  }
+  const normalized = url.trim().toLowerCase();
+  for (const protocol of UNSAFE_PROTOCOLS) {
+    if (normalized.startsWith(protocol)) {
+      throw new Error(
+        `[XFetch] Blocked unsafe protocol "${protocol}" in URL. Only http/https are allowed.`
+      );
+    }
+  }
+}
+
 // ─── URL Utilities ───────────────────────────────────────────────────────────
 
 /**
  * Joins a base URL with a path, normalizing duplicate slashes.
+ * Validates both segments against the unsafe protocol blocklist.
  *
  * @example
  * buildURL('https://api.example.com/', '/users') // → 'https://api.example.com/users'
  * buildURL('', '/users')                         // → '/users'
  */
 export function buildURL(base: string, path: string): string {
+  // Security: block dangerous protocols before constructing any URL
+  if (base) validateURL(base);
+  validateURL(path.startsWith('/') || !base ? (base || '/') + path : path);
+
   if (!base) return path;
   // Strip trailing slash from base, ensure leading slash on path
   const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${cleanBase}${cleanPath}`;
+}
+
+/**
+ * Scrubs sensitive credentials from a URL for safe logging.
+ * Replaces embedded `user:password@` with `***:***@`.
+ *
+ * @example
+ * scrubURL('https://admin:secret@api.example.com/data')
+ * // → 'https://***:***@api.example.com/data'
+ */
+export function scrubURL(url: string): string {
+  try {
+    return url.replace(/(https?:\/\/)[^:@/]+:[^@/]+@/, '$1***:***@');
+  } catch {
+    return '[url scrub error]';
+  }
 }
 
 /**
@@ -77,14 +134,25 @@ export function appendParams(
  * Merges multiple header objects, later entries win.
  * Header names are normalized to lowercase.
  */
+/**
+ * Keys that must never appear in headers — they are prototype pollution vectors.
+ */
+const FORBIDDEN_HEADER_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 export function mergeHeaders(
   ...sources: (Record<string, string> | undefined | null)[]
 ): Record<string, string> {
-  const result: Record<string, string> = {};
+  // Use null prototype to prevent prototype pollution on the result object
+  const result = Object.create(null) as Record<string, string>;
   for (const source of sources) {
-    if (!source) continue;
+    if (!source || typeof source !== 'object') continue;
     for (const [key, value] of Object.entries(source)) {
-      result[key.toLowerCase()] = value;
+      const normalized = key.toLowerCase().trim();
+      // Security: block prototype pollution keys
+      if (FORBIDDEN_HEADER_KEYS.has(normalized)) continue;
+      // Security: skip undefined/null header values to avoid 'undefined' strings
+      if (value === undefined || value === null) continue;
+      result[normalized] = String(value);
     }
   }
   return result;

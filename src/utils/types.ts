@@ -74,6 +74,13 @@ export interface RetryOptions {
    * Overrides default status-code check if provided.
    */
   condition?: (error: XFetchError) => boolean;
+  /**
+   * HTTP methods eligible for retry. By default only idempotent methods are retried
+   * (GET, HEAD, OPTIONS, PUT, DELETE). Add 'POST' or 'PATCH' here to opt-in to
+   * retrying non-idempotent methods — use with caution to avoid duplicate side-effects.
+   * @default ['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE']
+   */
+  allowedMethods?: string[];
 }
 
 // ─── Auth Options ─────────────────────────────────────────────────────────────

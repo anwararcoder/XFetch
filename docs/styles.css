@@ -1,0 +1,172 @@
+/* styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --border: 240 5.9% 90%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --border: 240 3.7% 15.9%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  transition: background-color 0.3s, color 0.3s;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+code, pre {
+  font-family: 'Fira Code', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Prosaic typography */
+.prose h1 { font-size: 2.25rem; line-height: 2.5rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 1rem; margin-top: 2rem; }
+.prose h2 { font-size: 1.5rem; line-height: 2rem; font-weight: 600; letter-spacing: -0.025em; border-bottom: 1px solid hsl(var(--border)); padding-bottom: 0.5rem; margin-bottom: 1rem; margin-top: 2.5rem; }
+.prose h3 { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 1rem; margin-top: 2rem; }
+.prose p { line-height: 1.75rem; margin-bottom: 1rem; color: hsl(var(--muted-foreground)); }
+.prose ul { list-style-type: disc; list-style-position: inside; margin-bottom: 1rem; color: hsl(var(--muted-foreground)); }
+.prose ul li { margin-bottom: 0.5rem; }
+.prose a { font-weight: 500; text-decoration: underline; text-underline-offset: 4px; }
+
+/* Code blocks */
+.code-block-wrapper {
+  position: relative;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+.code-block-wrapper pre {
+  background-color: #0d1117; /* GitHub dark theme bg */
+  color: #c9d1d9;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border: 1px solid hsl(var(--border) / 0.1);
+}
+.dark .code-block-wrapper pre {
+  background-color: #09090b;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s, background-color 0.2s;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.code-block-wrapper:hover .copy-btn {
+  opacity: 1;
+}
+.copy-btn:hover {
+  background: hsl(var(--border));
+}
+
+/* Sidebar Links */
+.sidebar-link {
+  display: block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.2s, background-color 0.2s;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+.sidebar-link:hover {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+.sidebar-link.active {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+/* Layout utilities */
+.container-max {
+  max-width: 86rem; /* 1376px */
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Page transitions */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Search Input */
+.search-input {
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
+  font-size: 0.875rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus {
+  border-color: hsl(var(--primary) / 0.5);
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.1);
+}
+.search-icon {
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(var(--muted-foreground));
+}

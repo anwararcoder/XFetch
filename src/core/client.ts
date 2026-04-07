@@ -29,7 +29,7 @@ import {
   type RequestContext,
 } from '../utils/types.js';
 
-import { mergeHeaders, generateCacheKey, isDev } from '../utils/helpers.js';
+import { mergeHeaders, generateCacheKey, isDev, scrubURL } from '../utils/helpers.js';
 import { InterceptorManager } from './interceptors.js';
 import { executeRequest, type ResolvedRequest } from './request.js';
 import { CacheManager } from '../features/cache.js';
@@ -55,11 +55,14 @@ const DEFAULT_TIMEOUT = 30_000; // 30 seconds
  * ```
  */
 export function createClient(config: XFetchConfig = {}): XFetchClient {
-  // ── Resolved config ──────────────────────────────────────────────────────
+  // ── Resolved config ───────────────────────────────────────
   const baseURL       = config.baseURL ?? '';
   const globalTimeout = config.timeout ?? DEFAULT_TIMEOUT;
   const globalHeaders = mergeHeaders(config.headers);
   const debug         = config.debug ?? isDev;
+
+  // Security: freeze resolved config to prevent runtime mutation
+  Object.freeze(config);
 
   // ── Sub-systems ──────────────────────────────────────────────────────────
   const authManager  = AuthManager.from(config.auth);
@@ -120,7 +123,7 @@ export function createClient(config: XFetchConfig = {}): XFetchClient {
 
     // BUG-9 FIX: generate cache key AFTER interceptors run, using ctx.method
     // (interceptors may have changed the method or URL).
-    const cacheOpts = resolveCacheOptions(options);
+    const cacheOpts = resolveCacheOptions(options, ctx.headers);
     const cacheKey  = generateCacheKey(ctx.method, joinURL(baseURL, ctx.url), ctx.body);
 
     // ── 6. Build the low-level resolved request ───────────────────────────
@@ -139,7 +142,8 @@ export function createClient(config: XFetchConfig = {}): XFetchClient {
       return withRetry(
         () => executeRequest<T>(resolved),
         retryOpts,
-        effectiveOptions.signal
+        effectiveOptions.signal,
+        ctx.method  // Security: enables idempotency check inside shouldRetry
       );
     }
 
@@ -321,8 +325,17 @@ function normalizeError(err: unknown, fallbackMessage: string): XFetchError {
   return new XFetchError({ message: `${fallbackMessage}: ${message}` });
 }
 
-function resolveCacheOptions(options: RequestOptions) {
+function resolveCacheOptions(options: RequestOptions, headers?: Record<string, string>) {
   if (options.cache === false) return null;
+  // Security: never cache requests that carry auth credentials
+  if (headers) {
+    const headerKeys = Object.keys(headers).map((k) => k.toLowerCase());
+    const hasAuth =
+      headerKeys.includes('authorization') ||
+      headerKeys.includes('cookie') ||
+      headerKeys.includes('x-auth-token');
+    if (hasAuth) return null;
+  }
   return options.cache ?? null;
 }
 
@@ -343,6 +356,31 @@ function joinURL(base: string, path: string): string {
 // Dev Logger (inline — keeps logger.ts as an optional plugin for consumers)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** 
+ * Sensitive header names that must NOT appear in logs.
+ * These would expose auth credentials or session identifiers.
+ */
+const SCRUBBED_HEADERS = new Set([
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'x-auth-token',
+  'x-api-key',
+  'proxy-authorization',
+]);
+
+/**
+ * Returns a copy of the headers object with sensitive values redacted.
+ * Safe to pass to console.log.
+ */
+function scrubHeaders(headers: Record<string, string>): Record<string, string> {
+  const safe: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    safe[key] = SCRUBBED_HEADERS.has(key.toLowerCase()) ? '[REDACTED]' : value;
+  }
+  return safe;
+}
+
 const METHOD_COLORS: Record<string, string> = {
   get:    '#61affe',
   post:   '#49cc90',
@@ -360,17 +398,20 @@ function methodColor(method: string): string {
 
 function logRequest(method: string, url: string, headers: Record<string, string>) {
   const color = methodColor(method);
+  // Security: scrub credentials from URL and auth headers before logging
+  const safeURL = scrubURL(url);
+  const safeHeaders = scrubHeaders(headers);
   if (typeof console.groupCollapsed === 'function') {
     console.groupCollapsed(
-      `%c[XFetch] %c→ ${method.toUpperCase()} %c${url}`,
+      `%c[XFetch] %c→ ${method.toUpperCase()} %c${safeURL}`,
       'color:#888;font-weight:normal',
       `color:${color};font-weight:bold`,
       'color:inherit;font-weight:normal'
     );
-    console.log('Headers:', headers);
+    console.log('Headers:', safeHeaders);
     console.groupEnd();
   } else {
-    console.log(`[XFetch] → ${method.toUpperCase()} ${url}`);
+    console.log(`[XFetch] → ${method.toUpperCase()} ${safeURL}`);
   }
 }
 
@@ -383,9 +424,11 @@ function logResponse(
 ) {
   const color = status < 400 ? STATUS_COLORS.ok : STATUS_COLORS.error;
   const cacheLabel = fromCache ? ' [CACHE]' : '';
+  // Security: scrub credentials from the URL before logging
+  const safeURL = scrubURL(url);
   if (typeof console.groupCollapsed === 'function') {
     console.groupCollapsed(
-      `%c[XFetch] %c← ${method.toUpperCase()} %c${url} %c${status}%c ${durationMs}ms${cacheLabel}`,
+      `%c[XFetch] %c← ${method.toUpperCase()} %c${safeURL} %c${status}%c ${durationMs}ms${cacheLabel}`,
       'color:#888;font-weight:normal',
       `color:${methodColor(method)};font-weight:bold`,
       'color:inherit;font-weight:normal',
@@ -394,6 +437,6 @@ function logResponse(
     );
     console.groupEnd();
   } else {
-    console.log(`[XFetch] ← ${method.toUpperCase()} ${url} | ${status} | ${durationMs}ms${cacheLabel}`);
+    console.log(`[XFetch] ← ${method.toUpperCase()} ${safeURL} | ${status} | ${durationMs}ms${cacheLabel}`);
   }
 }

@@ -19,13 +19,26 @@ import { sleep } from '../utils/helpers.js';
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
-export const RETRY_DEFAULTS: Required<Omit<RetryOptions, 'condition'>> = {
+export const RETRY_DEFAULTS: Required<Omit<RetryOptions, 'condition' | 'allowedMethods'>> = {
   count: 3,
   delay: 500,
   maxDelay: 30_000,
   // These status codes represent transient server/client issues safe to retry
   statusCodes: [408, 429, 500, 502, 503, 504],
 };
+
+/**
+ * Absolute hard ceiling on retry attempts regardless of what the consumer passes.
+ * Prevents misconfiguration from creating infinite retry cycles that hammer backends.
+ */
+const MAX_RETRY_HARD_CAP = 10;
+
+/**
+ * HTTP methods that are idempotent by nature and safe to retry.
+ * Retrying non-idempotent methods (POST, PATCH) can cause duplicate
+ * side-effects such as double charges or duplicate writes.
+ */
+const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE']);
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -66,13 +79,27 @@ export function calculateDelay(
 export function shouldRetry(
   error: XFetchError,
   attempt: number,
-  options: Required<Omit<RetryOptions, 'condition'>> & Pick<RetryOptions, 'condition'>
+  options: Required<Omit<RetryOptions, 'condition' | 'allowedMethods'>> & Pick<RetryOptions, 'condition' | 'allowedMethods'>,
+  method?: string
 ): boolean {
-  // Exhausted all attempts
+  // Hard cap: never exceed absolute maximum regardless of config
+  if (attempt >= MAX_RETRY_HARD_CAP) return false;
+
+  // Exhausted all configured attempts
   if (attempt >= options.count) return false;
 
   // Never retry user-aborted requests
   if (error.isAborted) return false;
+
+  // Security: check method idempotency before allowing retry
+  if (method) {
+    const upperMethod = method.toUpperCase();
+    const allowedMethods = options.allowedMethods ?? [...IDEMPOTENT_METHODS];
+    const methodAllowed = allowedMethods
+      .map((m: string) => m.toUpperCase())
+      .includes(upperMethod);
+    if (!methodAllowed) return false;
+  }
 
   // Delegate to custom condition if provided
   if (options.condition) {
@@ -102,14 +129,16 @@ export function shouldRetry(
 export async function withRetry<T>(
   fn: () => Promise<T>,
   options: RetryOptions = {},
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  method?: string
 ): Promise<T> {
   const resolved = {
-    count:       options.count      ?? RETRY_DEFAULTS.count,
-    delay:       options.delay      ?? RETRY_DEFAULTS.delay,
-    maxDelay:    options.maxDelay   ?? RETRY_DEFAULTS.maxDelay,
-    statusCodes: options.statusCodes ?? RETRY_DEFAULTS.statusCodes,
-    condition:   options.condition,
+    count:         Math.min(options.count ?? RETRY_DEFAULTS.count, MAX_RETRY_HARD_CAP),
+    delay:         options.delay      ?? RETRY_DEFAULTS.delay,
+    maxDelay:      options.maxDelay   ?? RETRY_DEFAULTS.maxDelay,
+    statusCodes:   options.statusCodes ?? RETRY_DEFAULTS.statusCodes,
+    condition:     options.condition,
+    allowedMethods: options.allowedMethods,
   };
 
   let attempt = 0;
@@ -130,7 +159,7 @@ export async function withRetry<T>(
               isNetworkError: !(err instanceof XFetchError),
             });
 
-      if (!shouldRetry(xErr, attempt, resolved)) {
+      if (!shouldRetry(xErr, attempt, resolved, method)) {
         throw xErr; // BUG-1 FIX: throw directly, no intermediate variable needed
       }
 
